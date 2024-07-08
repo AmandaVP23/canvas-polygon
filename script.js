@@ -35,74 +35,31 @@ function main() {
     ctx.fill(); // Fill the polygon area
     ctx.restore(); // Restore the state
 
-
-
-
-
     canvas.addEventListener('click', function(event) {
         // Get the click coordinates
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        console.log(contains(points, x, y));
-
-        // // Check if the click is inside the polygon
-        // if (isPointInPolygon(x, y, points)) {
-        //     alert('You clicked inside the polygon!');
-        // } else {
-        //     alert('You clicked outside the polygon!');
-        // }
+        // console.log(contains2(points, x, y));
+        console.log(isPointInsidePolygon(x, y, points))
     });
-
-    function isPointInPolygon(x, y, points) {
-        let inside = false;
-
-        for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-            const xi = points[i].x
-            const yi = points[i].y;
-            const xj = points[j].x
-            const yj = points[j].y;
-
-            const intersect = ((yi > y) !== (yj > y)) &&
-                              (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-        return inside;
-    }
 }
 
-function contains(bounds, lat, lng) {
-    //https://rosettacode.org/wiki/Ray-casting_algorithm
-    var count = 0;
-    for (var b = 0; b < bounds.length; b++) {
-        var vertex1 = bounds[b];
-        var vertex2 = bounds[(b + 1) % bounds.length];
-        console.log('vertex1', vertex1, 'vertex2', vertex2, 'pos vertex2', (b + 1) % bounds.length);
-        if (west(vertex1, vertex2, lng, lat))
-            ++count;
-    }
-    return count % 2;
+function isPointInsidePolygon(x, y, polygonPoints) {
+    let counter = 0;
+    
+    for (let i = 0; i < polygonPoints.length; i++) {
+        const pointA = polygonPoints[i];
+        const pointB = polygonPoints[(i + 1) % polygonPoints.length];
 
-    /**
-     * @return {boolean} true if (x,y) is west of the line segment connecting A and B
-     */
-    function west(A, B, x, y) {
-        if (A.y <= B.y) {
-            if (y <= A.y || y > B.y ||
-                x >= A.x && x >= B.x) {
-                return false;
-            } else if (x < A.x && x < B.x) {
-                return true;
-            } else {
-                return (y - A.y) / (x - A.x) > (B.y - A.y) / (B.x - A.x);
-            }
-        } else {
-            return west(B, A, x, y);
+        if (((pointA.y > y) !== (pointB.y > y)) &&
+            (x < (pointB.x - pointA.x) * (y - pointA.y) / (pointB.y - pointA.y) + pointA.x)) {
+            counter++;
         }
     }
+
+    return counter % 2 === 1;
 }
-
-
 
 main();
